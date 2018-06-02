@@ -1,0 +1,116 @@
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue,
+    sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+.header {
+  width: 100%;
+  background: #5382b6;
+}
+
+.content {
+  width: 100%;
+}
+
+.auth {
+  margin: 16px 32px 8px 32px;
+  padding: 8px;
+  border-radius: 4px;
+  text-align: center;
+  background: #4c77a6;
+}
+
+.auth__button {
+  text-decoration: none;
+  color: #fff;
+}
+
+.search {
+  position: relative;
+  width: 100%;
+  padding: 8px 16px 8px 16px;
+}
+
+.search::before {
+  content: " ";
+  position: absolute;
+  top: 11px;
+  left: 25px;
+  width: 16px;
+  height: 16px;
+  background: url(/assets/search_icons.png) no-repeat 8px;
+  background-position: 0px 0px;
+}
+
+.search__input {
+  color: #c6d8ec;
+  background: #3d6591;
+  outline: none;
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 4px 8px 4px 30px;
+  font-size: 14px;
+}
+
+.search__input::placeholder {
+  color: #c6d8ec;
+}
+
+.person {
+  display: flex;
+}
+
+.person__avatar {
+  margin: 8px;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+}
+
+.person__information {
+  display: flex;
+  flex-flow: column nowrap;
+  margin-top: 8px;
+}
+
+.person__name {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.person__additional {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 14px;
+  color: #757575;
+}
+
+@media (min-width: 960px) {
+  .content,
+  .header__content {
+    width: 960px;
+    margin: 0 auto;
+  }
+
+  .search {
+    width: 320px;
+    margin-left: auto;
+  }
+
+  .person__avatar {
+    width: 64px;
+    height: 64px;
+  }
+
+  .person__name {
+    margin-top: 8px;
+    font-size: 18px;
+  }
+}
