@@ -14,12 +14,12 @@ class API
         $key = md5("https://api.vk.com/method/$method?" . $querystring);
 
         if ($this->mc->get($key)) {
-            die($this->mc->get($key));
+            return $this->mc->get($key);
         }
 
         $response = @file_get_contents("https://api.vk.com/method/$method?" . $querystring);
 
-        $this->mc->set($key, $response, 10);
+        $this->mc->set($key, json_decode($response), 10);
         return json_decode($response);
     }
 }

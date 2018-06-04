@@ -33,7 +33,7 @@ function get($api, $offset)
         'offset' => $offset,
         'order' => 'hints',
         'count' => 20,
-        'fields' => 'contacts,photo_100,education,online',
+        'fields' => 'contacts,photo_100,education,online,online_mobile',
     ));
 
     if (isset($response->error)) {
@@ -52,7 +52,7 @@ function get($api, $offset)
     return $result;
 }
 
-function search($access_token, $offset, $q)
+function search($api, $offset, $q)
 {
 
     $response = $api->request("friends.search", array(
@@ -60,7 +60,7 @@ function search($access_token, $offset, $q)
         'v' => '5.78',
         'offset' => $offset,
         'count' => 20,
-        'fields' => 'contacts,photo_100,education,online',
+        'fields' => 'contacts,photo_100,education,online,online_mobile',
         'q' => $q,
     ));
 

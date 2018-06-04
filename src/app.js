@@ -1,5 +1,12 @@
-import { createElement, getCookie, debounce, request } from "./helpers";
+import {
+  createElement,
+  getCookie,
+  debounce,
+  request,
+  translit
+} from "./helpers";
 
+let rendered = [];
 let offset = 0;
 let searchString = "";
 // const friends = [];
@@ -43,6 +50,20 @@ async function search(newOffset) {
     "search" + searchString + newOffset
   );
 
+  let i = 0;
+  while (true) {
+    let friends = JSON.parse(sessionStorage.getItem("allFriends" + i));
+    if (!friends) break;
+
+    friends.forEach(friend => {
+      const name = `${friend.first_name} ${friend.first_name}`;
+
+      if (new RegExp(searchString).test(name.toLowerCase())) addPerson(friend);
+    });
+
+    i += 20;
+  }
+
   if (!savedResults) {
     console.log("seacrh friends from api with query " + searchString);
 
@@ -84,38 +105,27 @@ async function search(newOffset) {
   }
 }
 
-function handleScroll() {
-  let scroll;
-
-  if (document.documentElement.scrollTop) {
-    scroll = document.documentElement.scrollTop;
-  } else {
-    scroll = document.body.scrollTop;
-  }
-
-  if (
-    scroll + document.documentElement.clientHeight >=
-    document.body.offsetHeight
-  ) {
-    if (searchString) {
-      search(offset + 20);
-    } else {
-      loadFriends(offset + 20);
-    }
-  }
-}
-
 function addPerson(person) {
+  if (rendered.includes[person.id]) return;
+  rendered.push(person.id);
+
   const friendsEl = document.getElementsByClassName("friends")[0];
   const personEl = getPersonElement(person);
 
   friendsEl.appendChild(personEl);
 }
 
+function clearFriends() {
+  const friendsEl = document.getElementsByClassName("friends")[0];
+  friendsEl.innerHTML = "";
+}
+
 function getPersonElement(person) {
   const el = createElement("div", "person");
 
-  const avatarEl = createElement("img", "person__avatar", {
+  const avatarEl = createElement("div", "avatar");
+
+  const imgEl = createElement("img", "avatar__img", {
     src: person.photo_100
   });
 
@@ -134,6 +144,11 @@ function getPersonElement(person) {
     })()
   });
 
+  avatarEl.appendChild(imgEl);
+
+  person.online === 1 && avatarEl.classList.add("online");
+  person.online === 2 && avatarEl.classList.add("online--mobile");
+
   el.appendChild(avatarEl);
 
   informationEl.appendChild(nameEl);
@@ -144,7 +159,7 @@ function getPersonElement(person) {
   return el;
 }
 
-function onReady() {
+document.addEventListener("DOMContentLoaded", () => {
   if (!getCookie("access_token")) {
     sessionStorage.clear();
     document.getElementsByClassName("auth")[0].style.display = "block";
@@ -169,11 +184,25 @@ function onReady() {
   document.addEventListener("scroll", handleScroll);
 
   loadFriends(offset);
-}
+});
 
-function clearFriends() {
-  const friendsEl = document.getElementsByClassName("friends")[0];
-  friendsEl.innerHTML = "";
-}
+function handleScroll() {
+  let scroll;
 
-document.addEventListener("DOMContentLoaded", onReady);
+  if (document.documentElement.scrollTop) {
+    scroll = document.documentElement.scrollTop;
+  } else {
+    scroll = document.body.scrollTop;
+  }
+
+  if (
+    scroll + document.documentElement.clientHeight >=
+    document.body.offsetHeight
+  ) {
+    if (searchString) {
+      search(offset + 20);
+    } else {
+      loadFriends(offset + 20);
+    }
+  }
+}

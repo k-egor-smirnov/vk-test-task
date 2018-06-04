@@ -98,6 +98,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./helpers */ "./src/helpers.js");
 
 
+let rendered = [];
 let offset = 0;
 let searchString = "";
 // const friends = [];
@@ -141,6 +142,20 @@ async function search(newOffset) {
     "search" + searchString + newOffset
   );
 
+  let i = 0;
+  while (true) {
+    let friends = JSON.parse(sessionStorage.getItem("allFriends" + i));
+    if (!friends) break;
+
+    friends.forEach(friend => {
+      const name = `${friend.first_name} ${friend.first_name}`;
+
+      if (new RegExp(searchString).test(name.toLowerCase())) addPerson(friend);
+    });
+
+    i += 20;
+  }
+
   if (!savedResults) {
     console.log("seacrh friends from api with query " + searchString);
 
@@ -182,38 +197,27 @@ async function search(newOffset) {
   }
 }
 
-function handleScroll() {
-  let scroll;
-
-  if (document.documentElement.scrollTop) {
-    scroll = document.documentElement.scrollTop;
-  } else {
-    scroll = document.body.scrollTop;
-  }
-
-  if (
-    scroll + document.documentElement.clientHeight >=
-    document.body.offsetHeight
-  ) {
-    if (searchString) {
-      search(offset + 20);
-    } else {
-      loadFriends(offset + 20);
-    }
-  }
-}
-
 function addPerson(person) {
+  if (rendered.includes[person.id]) return;
+  rendered.push(person.id);
+
   const friendsEl = document.getElementsByClassName("friends")[0];
   const personEl = getPersonElement(person);
 
   friendsEl.appendChild(personEl);
 }
 
+function clearFriends() {
+  const friendsEl = document.getElementsByClassName("friends")[0];
+  friendsEl.innerHTML = "";
+}
+
 function getPersonElement(person) {
   const el = Object(_helpers__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", "person");
 
-  const avatarEl = Object(_helpers__WEBPACK_IMPORTED_MODULE_0__["createElement"])("img", "person__avatar", {
+  const avatarEl = Object(_helpers__WEBPACK_IMPORTED_MODULE_0__["createElement"])("div", "avatar");
+
+  const imgEl = Object(_helpers__WEBPACK_IMPORTED_MODULE_0__["createElement"])("img", "avatar__img", {
     src: person.photo_100
   });
 
@@ -232,6 +236,11 @@ function getPersonElement(person) {
     })()
   });
 
+  avatarEl.appendChild(imgEl);
+
+  person.online === 1 && avatarEl.classList.add("online");
+  person.online === 2 && avatarEl.classList.add("online--mobile");
+
   el.appendChild(avatarEl);
 
   informationEl.appendChild(nameEl);
@@ -242,7 +251,7 @@ function getPersonElement(person) {
   return el;
 }
 
-function onReady() {
+document.addEventListener("DOMContentLoaded", () => {
   if (!Object(_helpers__WEBPACK_IMPORTED_MODULE_0__["getCookie"])("access_token")) {
     sessionStorage.clear();
     document.getElementsByClassName("auth")[0].style.display = "block";
@@ -267,14 +276,28 @@ function onReady() {
   document.addEventListener("scroll", handleScroll);
 
   loadFriends(offset);
-}
+});
 
-function clearFriends() {
-  const friendsEl = document.getElementsByClassName("friends")[0];
-  friendsEl.innerHTML = "";
-}
+function handleScroll() {
+  let scroll;
 
-document.addEventListener("DOMContentLoaded", onReady);
+  if (document.documentElement.scrollTop) {
+    scroll = document.documentElement.scrollTop;
+  } else {
+    scroll = document.body.scrollTop;
+  }
+
+  if (
+    scroll + document.documentElement.clientHeight >=
+    document.body.offsetHeight
+  ) {
+    if (searchString) {
+      search(offset + 20);
+    } else {
+      loadFriends(offset + 20);
+    }
+  }
+}
 
 
 /***/ }),
@@ -283,7 +306,7 @@ document.addEventListener("DOMContentLoaded", onReady);
 /*!************************!*\
   !*** ./src/helpers.js ***!
   \************************/
-/*! exports provided: createElement, getCookie, debounce, request */
+/*! exports provided: createElement, getCookie, debounce, request, translit */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -292,6 +315,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCookie", function() { return getCookie; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "debounce", function() { return debounce; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "request", function() { return request; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "translit", function() { return translit; });
 function createElement(tag, className, options) {
   const el = document.createElement(tag);
   el.className = className;
@@ -346,6 +370,50 @@ function debounce(f, ms) {
   };
 }
 
+function translit(str) {
+  const replacer = {
+    q: "й",
+    w: "ц",
+    e: "у",
+    r: "к",
+    t: "е",
+    y: "н",
+    u: "г",
+    i: "ш",
+    o: "щ",
+    p: "з",
+    "[": "х",
+    "]": "ъ",
+    a: "ф",
+    s: "ы",
+    d: "в",
+    f: "а",
+    g: "п",
+    h: "р",
+    j: "о",
+    k: "л",
+    l: "д",
+    ";": "ж",
+    "'": "э",
+    z: "я",
+    x: "ч",
+    c: "с",
+    v: "м",
+    b: "и",
+    n: "т",
+    m: "ь",
+    ",": "б",
+    ".": "ю",
+    "/": "."
+  };
+
+  return str.replace(/[A-z/,.;\'\]\[]/g, function(x) {
+    return x == x.toLowerCase()
+      ? replacer[x]
+      : replacer[x.toLowerCase()].toUpperCase();
+  });
+}
+
 
 
 
@@ -376,4 +444,4 @@ module.exports = __webpack_require__(/*! /Users/egor/php/src/app.js */"./src/app
 /***/ })
 
 /******/ });
-//# sourceMappingURL=app.9246.js.map
+//# sourceMappingURL=app.84d3.js.map
