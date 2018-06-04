@@ -67,7 +67,6 @@ async function search(newOffset) {
   if (!savedResults) {
     console.log("seacrh friends from api with query " + searchString);
 
-    //TODO: Проверить, что строка поиска и переданный поиск в xhr совпадают
     const { responseURL, response } = await request(
       "get.php?offset=" + newOffset + "&q=" + searchString
     );
