@@ -1,6 +1,9 @@
 <?php
 include_once './API.php';
 
+$mc = new Memcached();
+$mc->addServer('localhost', 8000);
+
 if (!isset($_GET['offset'])) {
     die("please provide offset parameter");
 }
@@ -8,21 +11,24 @@ if (!isset($_GET['offset'])) {
 $offset = $_GET['offset'];
 $access_token = $_COOKIE['access_token'];
 
+$api = new API($access_token, $mc);
+
 if (isset($_GET['q'])) {
-    $result = search($access_token, $offset, $_GET['q']);
+    $result = search($api, $offset, $_GET['q']);
 
 } else {
-    $result = get($access_token, $offset);
+    $result = get($api, $offset);
 }
 
 $json = json_encode($result);
 $json = mb_convert_encoding($json, 'utf-8');
+
 echo $json;
 
-function get($access_token, $offset)
+function get($api, $offset)
 {
-    $querystring = http_build_query(array(
-        'access_token' => $access_token,
+    $response = $api->request("friends.get", array(
+        'access_token' => $api->access_token,
         'v' => '5.78',
         'offset' => $offset,
         'order' => 'hints',
@@ -30,14 +36,17 @@ function get($access_token, $offset)
         'fields' => 'contacts,photo_100,education,online',
     ));
 
-    $response = @file_get_contents("https://api.vk.com/method/friends.get?" . $querystring);
-    $friends = json_decode($response)->response->items;
+    if (isset($response->error)) {
+        echo $response->error->error_msg;
+    }
+
+    $friends = $response->response->items;
 
     if (count($friends) <= 0) {
         die('[]');
     }
 
-    $mutual = getMutual($access_token, $offset, $friends);
+    $mutual = getMutual($api, $offset, $friends);
     $result = concatFriends($friends, $mutual);
 
     return $result;
@@ -45,8 +54,9 @@ function get($access_token, $offset)
 
 function search($access_token, $offset, $q)
 {
-    $querystring = http_build_query(array(
-        'access_token' => $access_token,
+
+    $response = $api->request("friends.search", array(
+        'access_token' => $api->access_token,
         'v' => '5.78',
         'offset' => $offset,
         'count' => 20,
@@ -54,39 +64,37 @@ function search($access_token, $offset, $q)
         'q' => $q,
     ));
 
-    $response = @file_get_contents("https://api.vk.com/method/friends.search?" . $querystring);
-    $friends = json_decode($response)->response->items;
+    if (isset($response->error)) {
+        echo $response->error->error_msg;
+    }
+
+    $friends = $response->response->items;
 
     if (count($friends) <= 0) {
         die('[]');
     }
 
-    $mutual = getMutual($access_token, $offset, $friends);
+    $mutual = getMutual($api, $offset, $friends);
     $result = concatFriends($friends, $mutual);
 
     return $result;
 
 }
 
-function getMutual($access_token, $offset, $friends)
+function getMutual($api, $offset, $friends)
 {
     $ids = '';
     foreach ($friends as $person) {
         $ids = $ids . $person->id . ',';
     }
 
-    $querystring = http_build_query(array(
-        'access_token' => $access_token,
+    $response = $api->request('friends.getMutual', array(
+        'access_token' => $api->access_token,
         'v' => '5.78',
         'target_uids' => $ids,
     ));
 
-    try {
-        $response = @file_get_contents("https://api.vk.com/method/friends.getMutual?" . $querystring);
-        $mutual = json_decode($response)->response;
-    } catch (Exception $e) {
-        die('[]');
-    }
+    $mutual = $response->response;
 
     return $mutual;
 }

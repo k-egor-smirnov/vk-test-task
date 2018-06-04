@@ -145,10 +145,10 @@ async function search(newOffset) {
     console.log("seacrh friends from api with query " + searchString);
 
     //TODO: Проверить, что строка поиска и переданный поиск в xhr совпадают
-    const { response } = await Object(_helpers__WEBPACK_IMPORTED_MODULE_0__["request"])(
+    const { responseURL, response } = await Object(_helpers__WEBPACK_IMPORTED_MODULE_0__["request"])(
       "get.php?offset=" + newOffset + "&q=" + searchString
     );
-    console.log(response);
+
     const data = JSON.parse(response);
 
     if (data.length > 0) {
@@ -376,4 +376,4 @@ module.exports = __webpack_require__(/*! /Users/egor/php/src/app.js */"./src/app
 /***/ })
 
 /******/ });
-//# sourceMappingURL=app.32d0.js.map
+//# sourceMappingURL=app.9246.js.map

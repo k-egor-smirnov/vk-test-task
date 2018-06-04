@@ -4,6 +4,8 @@ function localSearch() {}
 
 function apiSearch() {}
 
-function search(q, offset) {}
+function search(q, offset) {
+  
+}
 
 export default search;

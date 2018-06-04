@@ -1,7 +1,7 @@
 <?php
 $client_id = 6495253;
 $client_secret = "Z5PRMKXEv0NqXL95APCO";
-$redirect_url = "http://localhost:8080/login.php";
+$redirect_url = "http://esmirnov.xyz:8080/login.php";
 $auth_url = "https://oauth.vk.com/authorize?client_id=$client_id&display=page&redirect_uri=$redirect_url&scope=friends,offline&response_type=code&v=5.78";
 
 if (!$_GET['code']) {
