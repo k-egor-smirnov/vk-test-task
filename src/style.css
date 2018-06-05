@@ -123,6 +123,13 @@ body {
   color: #757575;
 }
 
+.error--notfound {
+  margin-top: 16px;
+  color: #757575;
+  width: 100%;
+  text-align: center;
+}
+
 @media (min-width: 960px) {
   .content,
   .header__content {

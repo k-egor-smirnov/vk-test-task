@@ -11,6 +11,7 @@ let people = [];
 let rendered = [];
 let offset = 0;
 let searchString = "";
+search = debounce(search, 500);
 // const friends = [];
 
 async function loadFriends(newOffset) {
@@ -88,6 +89,10 @@ async function search(newOffset) {
       );
 
       offset = newOffset;
+    } else {
+      document
+        .getElementsByClassName("error--notfound")[0]
+        .setAttribute("style", "display: block");
     }
   } else {
     savedResults = JSON.parse(savedResults);
@@ -120,6 +125,9 @@ function addPerson(person) {
 }
 
 function clearFriends() {
+  document
+    .getElementsByClassName("error--notfound")[0]
+    .setAttribute("style", "display: none");
   const friendsEl = document.getElementsByClassName("friends")[0];
   friendsEl.innerHTML = "";
   rendered = [];
