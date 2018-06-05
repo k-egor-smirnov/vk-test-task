@@ -62,13 +62,20 @@ async function search(newOffset) {
         friend.last_name.toLowerCase().startsWith(searchString) ||
         `${friend.first_name} ${friend.last_name}`
           .toLowerCase()
-          .startsWith(searchString)
+          .startsWith(searchString) ||
+        friend.first_name.toLowerCase().startsWith(translit(searchString)) ||
+        friend.last_name.toLowerCase().startsWith(translit(searchString)) ||
+        `${friend.first_name} ${friend.last_name}`
+          .toLowerCase()
+          .startsWith(translit(searchString))
       )
         addPerson(friend);
     });
 
     i += 20;
   }
+
+  return;
 
   if (!savedResults) {
     console.log("seacrh friends from api with query " + searchString);
@@ -125,6 +132,7 @@ function addPerson(person) {
 function clearFriends() {
   const friendsEl = document.getElementsByClassName("friends")[0];
   friendsEl.innerHTML = "";
+  rendered = [];
 }
 
 function getPersonElement(person) {
