@@ -30,7 +30,7 @@ async function loadFriends(newOffset) {
         "allFriends" + newOffset,
         JSON.stringify(response)
       );
-      offset += 20;
+      offset = newOffset;
     }
   } else {
     console.log("load friends from storage");
@@ -41,7 +41,7 @@ async function loadFriends(newOffset) {
         addPerson(savedResults[i]);
       }
 
-      offset += 20;
+      offset = newOffset;
     }
   }
 }
@@ -53,7 +53,9 @@ async function search(newOffset) {
 
   let i = 0;
   while (true) {
+    console.log(i);
     let friends = JSON.parse(sessionStorage.getItem("allFriends" + i));
+    console.log("allFriends" + i);
     if (!friends) break;
 
     friends.forEach(friend => {
@@ -68,8 +70,10 @@ async function search(newOffset) {
         `${friend.first_name} ${friend.last_name}`
           .toLowerCase()
           .startsWith(translit(searchString))
-      )
+      ) {
+        console.log(friend);
         addPerson(friend);
+      }
     });
 
     i += 20;
@@ -98,7 +102,7 @@ async function search(newOffset) {
         JSON.stringify(data)
       );
 
-      offset += newOffset;
+      offset == newOffset;
     }
   } else {
     console.log("seacrh friends from storage with query " + searchString);
@@ -112,7 +116,7 @@ async function search(newOffset) {
         addPerson(savedResults[i]);
       }
 
-      offset += newOffset;
+      offset = newOffset;
     }
   }
 }
