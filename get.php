@@ -54,7 +54,6 @@ function get($api, $offset)
 
 function search($api, $offset, $q)
 {
-
     $response = $api->request("friends.search", array(
         'access_token' => $api->access_token,
         'v' => '5.78',
@@ -85,7 +84,9 @@ function getMutual($api, $offset, $friends)
 {
     $ids = '';
     foreach ($friends as $person) {
-        $ids = $ids . $person->id . ',';
+        if (!isset($person->deactivated)) {
+            $ids = $ids . $person->id . ',';
+        }
     }
 
     $response = $api->request('friends.getMutual', array(

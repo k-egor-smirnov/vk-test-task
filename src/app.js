@@ -30,7 +30,7 @@ async function loadFriends(newOffset) {
         "allFriends" + newOffset,
         JSON.stringify(response)
       );
-      offset += newOffset;
+      offset += 20;
     }
   } else {
     console.log("load friends from storage");
@@ -41,7 +41,7 @@ async function loadFriends(newOffset) {
         addPerson(savedResults[i]);
       }
 
-      offset += newOffset;
+      offset += 20;
     }
   }
 }
