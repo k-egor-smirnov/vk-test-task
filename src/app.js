@@ -7,6 +7,7 @@ import {
   getQueryVariable
 } from "./helpers";
 
+let people = [];
 let rendered = [];
 let offset = 0;
 let searchString = "";
@@ -16,8 +17,6 @@ async function loadFriends(newOffset) {
   let savedResults = sessionStorage.getItem("allFriends" + newOffset);
 
   if (!savedResults) {
-    console.log("load friends from api");
-
     const data = await request("get.php?offset=" + newOffset);
     const response = JSON.parse(data.response);
 
@@ -33,7 +32,6 @@ async function loadFriends(newOffset) {
       offset = newOffset;
     }
   } else {
-    console.log("load friends from storage");
     savedResults = JSON.parse(savedResults);
 
     if (savedResults.length > 0) {
@@ -51,37 +49,24 @@ async function search(newOffset) {
     "search" + searchString + newOffset
   );
 
-  let i = 0;
-  while (true) {
-    console.log(i);
-    let friends = JSON.parse(sessionStorage.getItem("allFriends" + i));
-    console.log("allFriends" + i);
-    if (!friends) break;
-
-    friends.forEach(friend => {
-      if (
-        friend.first_name.toLowerCase().startsWith(searchString) ||
-        friend.last_name.toLowerCase().startsWith(searchString) ||
-        `${friend.first_name} ${friend.last_name}`
-          .toLowerCase()
-          .startsWith(searchString) ||
-        friend.first_name.toLowerCase().startsWith(translit(searchString)) ||
-        friend.last_name.toLowerCase().startsWith(translit(searchString)) ||
-        `${friend.first_name} ${friend.last_name}`
-          .toLowerCase()
-          .startsWith(translit(searchString))
-      ) {
-        console.log(friend);
-        addPerson(friend);
-      }
-    });
-
-    i += 20;
-  }
+  people.forEach(friend => {
+    if (
+      friend.first_name.toLowerCase().startsWith(searchString) ||
+      friend.last_name.toLowerCase().startsWith(searchString) ||
+      `${friend.first_name} ${friend.last_name}`
+        .toLowerCase()
+        .startsWith(searchString) ||
+      friend.first_name.toLowerCase().startsWith(translit(searchString)) ||
+      friend.last_name.toLowerCase().startsWith(translit(searchString)) ||
+      `${friend.first_name} ${friend.last_name}`
+        .toLowerCase()
+        .startsWith(translit(searchString))
+    ) {
+      addPerson(friend);
+    }
+  });
 
   if (!savedResults) {
-    console.log("seacrh friends from api with query " + searchString);
-
     const { responseURL, response } = await request(
       "get.php?offset=" + newOffset + "&q=" + searchString
     );
@@ -102,15 +87,13 @@ async function search(newOffset) {
         JSON.stringify(data)
       );
 
-      offset == newOffset;
+      offset = newOffset;
     }
   } else {
-    console.log("seacrh friends from storage with query " + searchString);
     savedResults = JSON.parse(savedResults);
 
     if (savedResults.length > 0) {
       newOffset === 0 && clearFriends();
-      clearFriends();
 
       for (let i = 0; i < savedResults.length; i++) {
         addPerson(savedResults[i]);
@@ -122,13 +105,18 @@ async function search(newOffset) {
 }
 
 function addPerson(person) {
-  if (rendered.includes[person.id]) return;
-  rendered.push(person.id);
+  if (people.indexOf(person.id) === -1) people.push(person);
 
-  const friendsEl = document.getElementsByClassName("friends")[0];
-  const personEl = getPersonElement(person);
+  if (rendered.indexOf(person.id) > -1) {
+    return;
+  } else {
+    rendered.push(person.id);
 
-  friendsEl.appendChild(personEl);
+    const friendsEl = document.getElementsByClassName("friends")[0];
+    const personEl = getPersonElement(person);
+
+    friendsEl.appendChild(personEl);
+  }
 }
 
 function clearFriends() {
@@ -187,15 +175,13 @@ document.addEventListener("DOMContentLoaded", () => {
   searchEl.addEventListener("input", function(e) {
     clearFriends();
     offset = 0;
-    searchString = e.srcElement.value;
+    searchString = e.srcElement.value.toLowerCase().trim();
 
     if (searchString) {
       search(offset);
     } else {
       loadFriends(offset);
     }
-
-    //Если пустая строка, достать из кэша первый результат, стоит сохранить в SessionStorage
   });
 
   document.addEventListener("scroll", handleScroll);
