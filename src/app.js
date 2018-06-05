@@ -11,7 +11,7 @@ let people = [];
 let rendered = [];
 let offset = 0;
 let searchString = "";
-search = debounce(search, 500);
+search = debounce(search, 100);
 // const friends = [];
 
 async function loadFriends(newOffset) {
