@@ -75,8 +75,6 @@ async function search(newOffset) {
     i += 20;
   }
 
-  return;
-
   if (!savedResults) {
     console.log("seacrh friends from api with query " + searchString);
 
