@@ -3,7 +3,8 @@ import {
   getCookie,
   debounce,
   request,
-  translit
+  translit,
+  getQueryVariable
 } from "./helpers";
 
 let rendered = [];
@@ -56,9 +57,14 @@ async function search(newOffset) {
     if (!friends) break;
 
     friends.forEach(friend => {
-      const name = `${friend.first_name} ${friend.first_name}`;
-
-      if (new RegExp(searchString).test(name.toLowerCase())) addPerson(friend);
+      if (
+        friend.first_name.toLowerCase().startsWith(searchString) ||
+        friend.last_name.toLowerCase().startsWith(searchString) ||
+        `${friend.first_name} ${friend.last_name}`
+          .toLowerCase()
+          .startsWith(searchString)
+      )
+        addPerson(friend);
     });
 
     i += 20;
@@ -70,6 +76,8 @@ async function search(newOffset) {
     const { responseURL, response } = await request(
       "get.php?offset=" + newOffset + "&q=" + searchString
     );
+
+    if (searchString !== getQueryVariable(responseURL, "q")) return;
 
     const data = JSON.parse(response);
 

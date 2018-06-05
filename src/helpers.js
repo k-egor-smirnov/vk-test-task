@@ -96,4 +96,22 @@ function translit(str) {
   });
 }
 
-export { createElement, getCookie, debounce, request, translit };
+function getQueryVariable(url, variable) {
+  const qs = url.split("?")[1];
+  const vars = qs.split("&");
+  for (let i = 0; i < vars.length; i++) {
+    const pair = vars[i].split("=");
+    if (decodeURIComponent(pair[0]) == variable) {
+      return decodeURIComponent(pair[1]);
+    }
+  }
+}
+
+export {
+  createElement,
+  getCookie,
+  debounce,
+  request,
+  translit,
+  getQueryVariable
+};
