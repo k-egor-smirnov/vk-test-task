@@ -135,6 +135,11 @@ body {
   text-align: center;
 }
 
+.indicator--loading {
+  display: none;
+  margin: 8px auto 32px auto;
+}
+
 @media (min-width: 960px) {
   .content,
   .header__content {

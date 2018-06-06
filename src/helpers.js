@@ -21,7 +21,12 @@ function getCookie(name) {
   return matches ? decodeURIComponent(matches[1]) : undefined;
 }
 
+// Only for new people loading
 function request(url, cb) {
+  document
+    .getElementsByClassName("indicator--loading")[0]
+    .setAttribute("style", "display: block");
+
   const xhr = new XMLHttpRequest();
   xhr.open("GET", url, true);
   xhr.send();
@@ -29,6 +34,10 @@ function request(url, cb) {
   return new Promise((resolve, reject) => {
     xhr.onreadystatechange = function() {
       if (xhr.readyState != 4) return;
+
+      document
+        .getElementsByClassName("indicator--loading")[0]
+        .setAttribute("style", "display: none");
 
       resolve(xhr);
     };
