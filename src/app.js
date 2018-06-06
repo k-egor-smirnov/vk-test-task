@@ -4,7 +4,9 @@ import {
   debounce,
   request,
   translit,
-  getQueryVariable
+  getQueryVariable,
+  getPersonElement,
+  getMutualDecl
 } from "./helpers";
 
 let people = [];
@@ -133,45 +135,6 @@ function clearFriends() {
   rendered = [];
 }
 
-function getPersonElement(person) {
-  const el = createElement("div", "person");
-
-  const avatarEl = createElement("div", "avatar");
-
-  const imgEl = createElement("img", "avatar__img", {
-    src: person.photo_100
-  });
-
-  const informationEl = createElement("div", "person__information");
-
-  const nameEl = createElement("span", "person__name", {
-    innerText: person.first_name + " " + person.last_name
-  });
-
-  const additionalEl = createElement("span", "person__additional", {
-    innerText: (() => {
-      if (person.university_name) return person.university_name;
-      if (person.mutual > 0) return person.mutual + " общих друзей";
-
-      return "";
-    })()
-  });
-
-  avatarEl.appendChild(imgEl);
-
-  person.online === 1 && avatarEl.classList.add("online");
-  person.online === 2 && avatarEl.classList.add("online--mobile");
-
-  el.appendChild(avatarEl);
-
-  informationEl.appendChild(nameEl);
-  informationEl.appendChild(additionalEl);
-
-  el.appendChild(informationEl);
-
-  return el;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   if (!getCookie("access_token")) {
     sessionStorage.clear();
@@ -207,7 +170,7 @@ function handleScroll() {
   }
 
   if (
-    scroll + document.documentElement.clientHeight >=
+    scroll + 400 + document.documentElement.clientHeight >= // 400 – offset for user-friendly load
     document.body.offsetHeight
   ) {
     if (searchString) {

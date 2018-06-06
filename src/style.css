@@ -67,7 +67,18 @@ body {
 }
 
 .avatar {
+  flex: 0 0 auto;
+  margin: 8px;
+  width: 48px;
+  height: 48px;
   position: relative;
+}
+
+.avatar__img {
+  width: 100%;
+  height: 100%;
+
+  border-radius: 50%;
 }
 
 .avatar.online::after {
@@ -75,8 +86,8 @@ body {
   position: absolute;
   width: 8px;
   height: 8px;
-  bottom: 16px;
-  right: 6px;
+  bottom: 6px;
+  right: -2px;
   border-radius: 50%;
   background: #8ac176;
   border: 2px solid white;
@@ -97,15 +108,9 @@ body {
   background-position: 0.5px;
 }
 
-.avatar__img {
-  margin: 8px;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-}
-
 .person__information {
   display: flex;
+  overflow: hidden;
   flex-flow: column nowrap;
   margin-top: 8px;
 }
@@ -142,9 +147,15 @@ body {
     margin-left: auto;
   }
 
-  .avatar__img {
+  .avatar {
+    position: relative;
     width: 64px;
     height: 64px;
+  }
+
+  .avatar__img {
+    width: 100%;
+    height: 100%;
   }
 
   .person__name {
@@ -157,8 +168,8 @@ body {
     position: absolute;
     width: 12px;
     height: 12px;
-    bottom: 16px;
-    right: 6px;
+    bottom: 10px;
+    right: -2px;
     border-radius: 50%;
     background: #8ac176;
     border: 2px solid white;
