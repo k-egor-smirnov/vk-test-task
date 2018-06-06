@@ -133,12 +133,13 @@ function getPersonElement(person) {
   const additionalEl = createElement("span", "person__additional", {
     innerText: (() => {
       if (person.university_name) return person.university_name;
-      if (person.mutual > 0)
-        return getMutualDecl(person.mutual, {
+      if (person.mutual > 0) {
+        return getDecl(person.mutual, {
           nominative: "общий друг",
           genitive: "общих друзей",
           accusative: "общих друга"
         });
+      }
 
       return "";
     })()
@@ -159,18 +160,18 @@ function getPersonElement(person) {
   return el;
 }
 
-function getMutualDecl(num, forms) {
-  num = num % 100;
+function getDecl(num, forms) {
+  const _num = num % 100;
 
-  if (num > 10 && num < 20) {
+  if (_num > 10 && _num < 20) {
     return `${num} ${forms.genitive}`;
   }
 
-  if (num % 10 > 1 && num % 10 < 5) {
+  if (_num % 10 > 1 && _num % 10 < 5) {
     return `${num} ${forms.accusative}`;
   }
 
-  if (num % 10 === 1) {
+  if (_num % 10 === 1) {
     return `${num} ${forms.nominative}`;
   }
 

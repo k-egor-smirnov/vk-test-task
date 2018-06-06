@@ -52,6 +52,8 @@ async function search(newOffset) {
     "search" + searchString + newOffset
   );
 
+  const toRender = [];
+
   people.forEach(friend => {
     if (
       friend.first_name.toLowerCase().startsWith(searchString) ||
@@ -65,7 +67,7 @@ async function search(newOffset) {
         .toLowerCase()
         .startsWith(translit(searchString))
     ) {
-      addPerson(friend);
+      toRender.push(friend);
     }
   });
 
@@ -82,7 +84,7 @@ async function search(newOffset) {
       newOffset === 0 && clearFriends();
 
       for (let i = 0; i < data.length; i++) {
-        addPerson(data[i]);
+        toRender.push(data[i]);
       }
 
       sessionStorage.setItem(
@@ -91,6 +93,7 @@ async function search(newOffset) {
       );
 
       offset = newOffset;
+      clearFriends(toRender);
     } else {
       document
         .getElementsByClassName("error--notfound")[0]
@@ -103,15 +106,16 @@ async function search(newOffset) {
       newOffset === 0 && clearFriends();
 
       for (let i = 0; i < savedResults.length; i++) {
-        addPerson(savedResults[i]);
+        toRender.push(savedResults[i]);
       }
 
       offset = newOffset;
+      clearFriends(toRender);
     }
   }
 }
 
-function addPerson(person) {
+function addPerson(person, el) {
   if (people.indexOf(person.id) === -1) people.push(person);
 
   if (rendered.indexOf(person.id) > -1) {
@@ -119,32 +123,28 @@ function addPerson(person) {
   } else {
     rendered.push(person.id);
 
-    const friendsEl = document.getElementsByClassName("friends")[0];
+    const defaultEl = document.getElementsByClassName("friends")[0];
     const personEl = getPersonElement(person);
 
-    friendsEl.appendChild(personEl);
+    if (el) {
+      el.appendChild(personEl);
+    } else {
+      defaultEl.appendChild(personEl);
+    }
   }
-}
-
-function clearFriends() {
-  document
-    .getElementsByClassName("error--notfound")[0]
-    .setAttribute("style", "display: none");
-  const friendsEl = document.getElementsByClassName("friends")[0];
-  friendsEl.innerHTML = "";
-  rendered = [];
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!getCookie("access_token")) {
     sessionStorage.clear();
     document.getElementsByClassName("auth")[0].style.display = "block";
+
+    return;
   }
 
   const searchEl = document.getElementsByClassName("search__input")[0];
 
   searchEl.addEventListener("input", function(e) {
-    clearFriends();
     offset = 0;
     searchString = e.srcElement.value.toLowerCase().trim();
 
@@ -159,6 +159,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadFriends(offset);
 });
+
+function clearFriends(ignore = []) {
+  document
+    .getElementsByClassName("error--notfound")[0]
+    .setAttribute("style", "display: none");
+
+  const friendsEl = document.getElementsByClassName("friends")[0];
+
+  const newFriendsEl = createElement("div", "friends");
+
+  rendered = [];
+
+  ignore.forEach(person => {
+    addPerson(person, newFriendsEl);
+  });
+
+  friendsEl.innerHTML = newFriendsEl.innerHTML;
+}
 
 function handleScroll() {
   let scroll;
