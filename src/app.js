@@ -13,11 +13,11 @@ let people = [];
 let rendered = [];
 let offset = 0;
 let searchString = "";
-search = debounce(search, 333);
+search = debounce(search, 1000 / 3); // 3 api request per second for user
 // const friends = [];
 
 async function loadFriends(newOffset) {
-  if (offset === 0) clearFriends();
+  if (newOffset === 0) clearFriends();
 
   let savedResults = sessionStorage.getItem("allFriends" + newOffset);
 
