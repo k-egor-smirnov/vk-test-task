@@ -13,10 +13,12 @@ let people = [];
 let rendered = [];
 let offset = 0;
 let searchString = "";
-search = debounce(search, 100);
+search = debounce(search, 333);
 // const friends = [];
 
 async function loadFriends(newOffset) {
+  if (offset === 0) clearFriends();
+
   let savedResults = sessionStorage.getItem("allFriends" + newOffset);
 
   if (!savedResults) {
@@ -95,6 +97,8 @@ async function search(newOffset) {
       offset = newOffset;
       clearFriends(toRender);
     } else {
+      clearFriends();
+
       document
         .getElementsByClassName("error--notfound")[0]
         .setAttribute("style", "display: block");
@@ -167,15 +171,20 @@ function clearFriends(ignore = []) {
 
   const friendsEl = document.getElementsByClassName("friends")[0];
 
-  const newFriendsEl = createElement("div", "friends");
-
   rendered = [];
 
-  ignore.forEach(person => {
-    addPerson(person, newFriendsEl);
-  });
+  if (!ignore) {
+    friendsEl.innerHTML = "";
+  } else {
+    const newFriendsEl = createElement("div", "friends");
 
-  friendsEl.innerHTML = newFriendsEl.innerHTML;
+    ignore.forEach(person => {
+      addPerson(person, newFriendsEl);
+    });
+
+    friendsEl.innerHTML = newFriendsEl.innerHTML;
+    newFriendsEl.innerHTML = "";
+  }
 }
 
 function handleScroll() {
