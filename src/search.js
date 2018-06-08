@@ -11,8 +11,6 @@ function indexFriends(list) {
     createIndex(person.first_name, person);
     createIndex(person.last_name, person);
   });
-
-  console.log("new index", index);
 }
 
 function createIndex(str, obj) {
@@ -70,11 +68,8 @@ function search(str) {
     if (!node) return;
 
     // console.log(getChildren(node));
-    result = [];
-    Object.keys(node).forEach(key => {
-      result = getChildren(node);
-      find(node[str[i + 1]], str, i + 1);
-    });
+    result = getChildren(node);
+    find(node[str[i + 1]], str, i + 1);
   })(index, str, -1);
 
   return result;
