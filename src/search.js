@@ -43,6 +43,7 @@ function createIndex(str, obj) {
 
 function getChildren(index) {
   const children = [];
+  console.log(index);
 
   (function get(node) {
     Object.keys(node).forEach(key => {
@@ -63,14 +64,13 @@ function search(str) {
   let result = [];
   str = translit(str).toLowerCase();
 
-  (function find(node, str, i) {
-    // console.log(node);
-    if (!node) return;
+  let curNode;
 
-    // console.log(getChildren(node));
-    result = getChildren(node);
-    find(node[str[i + 1]], str, i + 1);
-  })(index, str, -1);
+  for (let i = 0; i < str.length; i++) {
+    curNode = curNode ? curNode[str[i]] : index[str[0]];
+  }
+
+  result = curNode ? getChildren(curNode) : [];
 
   return result;
 }
