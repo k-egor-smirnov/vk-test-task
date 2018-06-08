@@ -62,50 +62,83 @@ function debounce(f, ms) {
 }
 
 function translit(str) {
-  const replacer = {
-    q: "й",
-    w: "ц",
-    e: "у",
-    r: "к",
-    t: "е",
-    y: "н",
-    u: "г",
-    i: "ш",
-    o: "щ",
-    p: "з",
-    "[": "х",
-    "]": "ъ",
-    a: "ф",
-    s: "ы",
-    d: "в",
-    f: "а",
-    g: "п",
-    h: "р",
-    j: "о",
-    k: "л",
-    l: "д",
-    ";": "ж",
-    "'": "э",
-    z: "я",
-    x: "ч",
-    c: "с",
-    v: "м",
-    b: "и",
-    n: "т",
-    m: "ь",
-    ",": "б",
-    ".": "ю",
-    "/": "."
+  var arr = {
+    а: "a",
+    б: "b",
+    в: "v",
+    г: "g",
+    д: "d",
+    е: "e",
+    ж: "g",
+    з: "z",
+    и: "i",
+    й: "y",
+    к: "k",
+    л: "l",
+    м: "m",
+    н: "n",
+    о: "o",
+    п: "p",
+    р: "r",
+    с: "s",
+    т: "t",
+    у: "u",
+    ф: "f",
+    ы: "i",
+    э: "e",
+    А: "A",
+    Б: "B",
+    В: "V",
+    Г: "G",
+    Д: "D",
+    Е: "E",
+    Ж: "G",
+    З: "Z",
+    И: "I",
+    Й: "Y",
+    К: "K",
+    Л: "L",
+    М: "M",
+    Н: "N",
+    О: "O",
+    П: "P",
+    Р: "R",
+    С: "S",
+    Т: "T",
+    У: "U",
+    Ф: "F",
+    Ы: "I",
+    Э: "E",
+    ё: "yo",
+    х: "h",
+    ц: "ts",
+    ч: "ch",
+    ш: "sh",
+    щ: "shch",
+    ъ: "",
+    ь: "",
+    ю: "yu",
+    я: "ya",
+    Ё: "YO",
+    Х: "H",
+    Ц: "TS",
+    Ч: "CH",
+    Ш: "SH",
+    Щ: "SHCH",
+    Ъ: "",
+    Ь: "",
+    Ю: "YU",
+    Я: "YA"
   };
-
-  return str.replace(/[A-z/,.;\'\]\[]/g, function(x) {
-    return x == x.toLowerCase()
-      ? replacer[x]
-      : replacer[x.toLowerCase()].toUpperCase();
-  });
+  var replacer = function(a) {
+    return arr[a] || a;
+  };
+  return str.replace(/[А-яёЁ]/g, replacer);
 }
 
 function getQueryVariable(url, variable) {
+  if (!url) return;
+
   const qs = url.split("?")[1];
   const vars = qs.split("&");
   for (let i = 0; i < vars.length; i++) {
@@ -178,6 +211,25 @@ function getDecl(num, forms) {
   return `${num} ${forms.genitive}`;
 }
 
+function searchPerson(person, searchString) {
+  if (
+    person.first_name.toLowerCase().startsWith(searchString) ||
+    person.last_name.toLowerCase().startsWith(searchString) ||
+    `${person.first_name} ${person.last_name}`
+      .toLowerCase()
+      .startsWith(searchString) ||
+    person.first_name.toLowerCase().startsWith(translit(searchString)) ||
+    person.last_name.toLowerCase().startsWith(translit(searchString)) ||
+    `${person.first_name} ${person.last_name}`
+      .toLowerCase()
+      .startsWith(translit(searchString))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 export {
   createElement,
   getCookie,
@@ -186,5 +238,6 @@ export {
   translit,
   getQueryVariable,
   getPersonElement,
-  getMutualDecl
+  getDecl,
+  searchPerson
 };

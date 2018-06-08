@@ -148,8 +148,8 @@ body {
   }
 
   .search {
-    width: 320px;
-    margin-left: auto;
+    width: 480px;
+    margin: 0 auto;
   }
 
   .avatar {

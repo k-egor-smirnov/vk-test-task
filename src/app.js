@@ -6,14 +6,21 @@ import {
   translit,
   getQueryVariable,
   getPersonElement,
-  getMutualDecl
+  getDecl,
+  searchPerson
 } from "./helpers";
+
+import { indexFriends, search } from "./search";
 
 let people = [];
 let rendered = [];
 let offset = 0;
 let searchString = "";
-search = debounce(search, 1000 / 3); // 3 api request per second for user
+let noMore = false;
+let fetching = false;
+
+// search = debounce(search, 1000 / 3); // 3 api request per second for user
+// handleScroll = debounce(handleScroll, 1000 / 3);
 // const friends = [];
 
 async function loadFriends(newOffset) {
@@ -26,6 +33,8 @@ async function loadFriends(newOffset) {
     const response = JSON.parse(data.response);
 
     if (response.length > 0) {
+      indexFriends(response);
+
       for (let i = 0; i < response.length; i++) {
         addPerson(response[i]);
       }
@@ -34,93 +43,103 @@ async function loadFriends(newOffset) {
         "allFriends" + newOffset,
         JSON.stringify(response)
       );
+
+      fetching = false;
       offset = newOffset;
+    } else {
+      noMore = true;
     }
   } else {
     savedResults = JSON.parse(savedResults);
 
     if (savedResults.length > 0) {
+      indexFriends(savedResults);
+
       for (let i = 0; i < savedResults.length; i++) {
         addPerson(savedResults[i]);
       }
 
+      fetching = false;
       offset = newOffset;
     }
   }
 }
 
-async function search(newOffset) {
-  let savedResults = sessionStorage.getItem(
-    "search" + searchString + newOffset
-  );
+// async function search(newOffset) {
+//   let savedResults = sessionStorage.getItem(
+//     "search" + searchString + newOffset
+//   );
 
-  const toRender = [];
+//   const toRender = [];
 
-  people.forEach(friend => {
-    if (
-      friend.first_name.toLowerCase().startsWith(searchString) ||
-      friend.last_name.toLowerCase().startsWith(searchString) ||
-      `${friend.first_name} ${friend.last_name}`
-        .toLowerCase()
-        .startsWith(searchString) ||
-      friend.first_name.toLowerCase().startsWith(translit(searchString)) ||
-      friend.last_name.toLowerCase().startsWith(translit(searchString)) ||
-      `${friend.first_name} ${friend.last_name}`
-        .toLowerCase()
-        .startsWith(translit(searchString))
-    ) {
-      toRender.push(friend);
-    }
-  });
+//   people.forEach(friend => {
+//     if (searchPerson(friend, searchString)) {
+//       toRender.push(friend);
+//     }
+//   });
 
-  if (!savedResults) {
-    const { responseURL, response } = await request(
-      "get.php?offset=" + newOffset + "&q=" + searchString
-    );
+//   clearFriends(toRender);
 
-    if (searchString !== getQueryVariable(responseURL, "q")) return;
+//   // if (!savedResults) {
+//   //   const { responseURL, response } = await request(
+//   //     "get.php?offset=" + newOffset + "&q=" + searchString
+//   //   );
 
-    const data = JSON.parse(response);
+//   //   if (searchString !== getQueryVariable(responseURL, "q")) return;
 
-    if (data.length > 0) {
-      newOffset === 0 && clearFriends();
+//   //   const data = JSON.parse(response);
 
-      for (let i = 0; i < data.length; i++) {
-        toRender.push(data[i]);
-      }
+//   //   if (data.length > 0) {
+//   //     newOffset === 0 && clearFriends();
 
-      sessionStorage.setItem(
-        "search" + searchString + newOffset,
-        JSON.stringify(data)
-      );
+//   //     for (let i = 0; i < data.length; i++) {
+//   //       toRender.push(data[i]);
+//   //     }
 
-      offset = newOffset;
-      clearFriends(toRender);
-    } else {
-      clearFriends();
+//   //     sessionStorage.setItem(
+//   //       "search" + searchString + newOffset,
+//   //       JSON.stringify(data)
+//   //     );
 
-      document
-        .getElementsByClassName("error--notfound")[0]
-        .setAttribute("style", "display: block");
-    }
-  } else {
-    savedResults = JSON.parse(savedResults);
+//   //     offset = newOffset;
+//   //     fetching = false;
 
-    if (savedResults.length > 0) {
-      newOffset === 0 && clearFriends();
+//   //     clearFriends(toRender);
+//   //   } else {
+//   //     if (rendered.length === 0) {
+//   //       clearFriends();
 
-      for (let i = 0; i < savedResults.length; i++) {
-        toRender.push(savedResults[i]);
-      }
+//   //       document
+//   //         .getElementsByClassName("error--notfound")[0]
+//   //         .setAttribute("style", "display: block");
+//   //     } else {
+//   //       noMore = true;
+//   //     }
+//   //   }
+//   // } else {
+//   //   savedResults = JSON.parse(savedResults);
 
-      offset = newOffset;
-      clearFriends(toRender);
-    }
-  }
-}
+//   //   if (savedResults.length > 0) {
+//   //     newOffset === 0 && clearFriends();
+
+//   //     for (let i = 0; i < savedResults.length; i++) {
+//   //       toRender.push(savedResults[i]);
+//   //     }
+
+//   //     offset = newOffset;
+//   //     fetching = false;
+
+//   //     clearFriends(toRender);
+//   //   }
+//   // }
+// }
 
 function addPerson(person, el) {
-  if (people.indexOf(person.id) === -1) people.push(person);
+  const found = people.find(foundPerson => {
+    return foundPerson.id === person.id;
+  });
+
+  if (found) return;
 
   if (rendered.indexOf(person.id) > -1) {
     return;
@@ -153,7 +172,9 @@ document.addEventListener("DOMContentLoaded", () => {
     searchString = e.srcElement.value.toLowerCase().trim();
 
     if (searchString) {
-      search(offset);
+      const result = search(searchString, offset);
+
+      clearFriends(result);
     } else {
       loadFriends(offset);
     }
@@ -171,6 +192,7 @@ function clearFriends(ignore = []) {
 
   const friendsEl = document.getElementsByClassName("friends")[0];
 
+  noMore = false;
   rendered = [];
 
   if (!ignore) {
@@ -187,7 +209,7 @@ function clearFriends(ignore = []) {
   }
 }
 
-function handleScroll() {
+async function handleScroll() {
   let scroll;
 
   if (document.documentElement.scrollTop) {
@@ -196,10 +218,14 @@ function handleScroll() {
     scroll = document.body.scrollTop;
   }
 
+  if (noMore || fetching) return;
+
   if (
     scroll + 400 + document.documentElement.clientHeight >= // 400 – offset for user-friendly load
     document.body.offsetHeight
   ) {
+    fetching = true;
+
     if (searchString) {
       search(offset + 20);
     } else {

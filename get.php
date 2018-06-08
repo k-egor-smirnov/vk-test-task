@@ -40,6 +40,10 @@ function get($api, $offset)
         echo $response->error->error_msg;
     }
 
+    if (!isset($response)) {
+        die('[]');
+    }
+
     $friends = $response->response->items;
 
     if (count($friends) <= 0) {
@@ -65,6 +69,10 @@ function search($api, $offset, $q)
 
     if (isset($response->error)) {
         echo $response->error->error_msg;
+    }
+
+    if (!isset($response)) {
+        die('[]');
     }
 
     $friends = $response->response->items;
