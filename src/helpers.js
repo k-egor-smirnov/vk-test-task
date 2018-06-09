@@ -62,78 +62,78 @@ function debounce(f, ms) {
 }
 
 function translit(str) {
-  var arr = {
-    а: "a",
-    б: "b",
-    в: "v",
-    г: "g",
-    д: "d",
-    е: "e",
-    ж: "g",
-    з: "z",
-    и: "i",
-    й: "y",
-    к: "k",
-    л: "l",
-    м: "m",
-    н: "n",
-    о: "o",
-    п: "p",
-    р: "r",
-    с: "s",
-    т: "t",
-    у: "u",
-    ф: "f",
-    ы: "i",
-    э: "e",
+  const cyrilic = {
     А: "A",
+    а: "a",
     Б: "B",
+    б: "b",
     В: "V",
+    в: "v",
     Г: "G",
+    г: "g",
     Д: "D",
+    д: "d",
     Е: "E",
-    Ж: "G",
-    З: "Z",
-    И: "I",
-    Й: "Y",
-    К: "K",
-    Л: "L",
-    М: "M",
-    Н: "N",
-    О: "O",
-    П: "P",
-    Р: "R",
-    С: "S",
-    Т: "T",
-    У: "U",
-    Ф: "F",
-    Ы: "I",
-    Э: "E",
+    е: "e",
+    Ё: "Yo",
     ё: "yo",
-    х: "h",
+    Ж: "Zh",
+    ж: "zh",
+    З: "Z",
+    з: "z",
+    И: "I",
+    и: "i",
+    Й: "Y",
+    й: "y",
+    К: "K",
+    к: "k",
+    Л: "L",
+    л: "l",
+    М: "M",
+    м: "m",
+    Н: "N",
+    н: "n",
+    О: "O",
+    о: "o",
+    П: "P",
+    п: "p",
+    Р: "R",
+    р: "r",
+    С: "S",
+    с: "s",
+    Т: "T",
+    т: "t",
+    У: "U",
+    у: "u",
+    Ф: "F",
+    ф: "f",
+    Х: "Kh",
+    х: "kh",
+    Ц: "Ts",
     ц: "ts",
+    Ч: "Ch",
     ч: "ch",
+    Ш: "Sh",
     ш: "sh",
-    щ: "shch",
-    ъ: "",
-    ь: "",
+    Щ: "Sch",
+    щ: "sch",
+    Ъ: '"',
+    ъ: '"',
+    Ы: "Y",
+    ы: "y",
+    Ь: "'",
+    ь: "'",
+    Э: "E",
+    э: "e",
+    Ю: "Yu",
     ю: "yu",
-    я: "ya",
-    Ё: "YO",
-    Х: "H",
-    Ц: "TS",
-    Ч: "CH",
-    Ш: "SH",
-    Щ: "SHCH",
-    Ъ: "",
-    Ь: "",
-    Ю: "YU",
-    Я: "YA"
+    Я: "Ya",
+    я: "ya"
   };
-  var replacer = function(a) {
-    return arr[a] || a;
-  };
-  return str.replace(/[А-яёЁ]/g, replacer);
+
+  return str.replace(/[А-я]/g, function(a, b) {
+    return cyrilic[a] || "";
+  });
 }
 
 function getQueryVariable(url, variable) {
@@ -230,6 +230,37 @@ function searchPerson(person, searchString) {
   return false;
 }
 
+function intersection() {
+  const result = [];
+  let lists;
+
+  if (arguments.length === 1) {
+    return arguments[0];
+  } else {
+    lists = Array.prototype.slice.call(arguments);
+  }
+
+  for (let i = 0; i < lists.length; i++) {
+    let currentList = Object.keys(lists[i]);
+    for (let y = 0; y < currentList.length; y++) {
+      let currentValue = currentList[y];
+      if (result.indexOf(currentValue) === -1) {
+        if (
+          lists.filter(function(obj) {
+            return Object.keys(obj).indexOf(currentValue) == -1;
+          }).length == 0
+        ) {
+          result.push(currentValue);
+        }
+      }
+    }
+  }
+
+  return result.map(id => {
+    return lists[0][id];
+  });
+}
+
 export {
   createElement,
   getCookie,
@@ -239,5 +270,6 @@ export {
   getQueryVariable,
   getPersonElement,
   getDecl,
-  searchPerson
+  searchPerson,
+  intersection
 };

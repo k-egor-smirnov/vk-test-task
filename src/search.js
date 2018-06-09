@@ -1,10 +1,8 @@
-import { request, debounce, translit } from "./helpers";
+import { request, debounce, translit, intersection } from "./helpers";
 
 const index = {};
 
-function localSearch() {}
-
-function apiSearch() {}
+function initIndex() {}
 
 function indexFriends(list) {
   list.forEach(person => {
@@ -43,7 +41,6 @@ function createIndex(str, obj) {
 
 function getChildren(index) {
   const children = [];
-  console.log(index);
 
   (function get(node) {
     Object.keys(node).forEach(key => {
@@ -61,18 +58,31 @@ function getChildren(index) {
 }
 
 function search(str) {
-  let result = [];
+  let results = [];
   str = translit(str).toLowerCase();
 
-  let curNode;
+  str.split(" ").forEach((name, i) => {
+    let curNode;
 
-  for (let i = 0; i < str.length; i++) {
-    curNode = curNode ? curNode[str[i]] : index[str[0]];
+    for (let i = 0; i < name.length; i++) {
+      curNode = curNode ? curNode[name[i]] : index[name[0]];
+    }
+
+    results[i] = curNode ? getChildren(curNode) : [];
+  });
+
+  if (results.length > 1) {
+    const arrays = results.map(arr =>
+      arr.reduce((acc, value) => {
+        acc[value.id] = value;
+        return acc;
+      }, {})
+    );
+
+    return intersection(...arrays);
+  } else {
+    return results[0];
   }
-
-  result = curNode ? getChildren(curNode) : [];
-
-  return result;
 }
 
 export { indexFriends, search };
