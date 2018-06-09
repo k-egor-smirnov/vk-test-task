@@ -6,8 +6,7 @@ import {
   translit,
   getQueryVariable,
   getPersonElement,
-  getDecl,
-  searchPerson
+  getDecl
 } from "./helpers";
 
 import { search, indexFriends } from "./search";
@@ -18,6 +17,7 @@ let searchString = "";
 let noMore = false;
 let fetching = false;
 let friends = JSON.parse(sessionStorage.getItem("allFriends")) || [];
+let searchResults = [];
 let friendsEl;
 // search = debounce(search, 1000 / 3); // 3 api request per second for user
 // handleScroll = debounce(handleScroll, 1000 / 3);
@@ -100,9 +100,11 @@ document.addEventListener("DOMContentLoaded", () => {
     searchString = e.srcElement.value.toLowerCase().trim();
 
     if (searchString) {
-      const result = search(searchString, offset);
+      toggleLoad(true);
+      searchResults = search(searchString);
+      toggleLoad(false);
 
-      clearFriends(result);
+      clearFriends(searchResults.slice(0, 20));
     } else {
       loadFriends(offset);
     }
@@ -161,7 +163,14 @@ async function handleScroll() {
     document.body.offsetHeight
   ) {
     if (searchString) {
-      search(offset + 20);
+      toggleLoad(true);
+      let searchArr = searchResults.slice(offset + 20, offset + 40);
+
+      for (let i = 0; i < searchArr.length; i++) {
+        if (searchArr[i]) {
+          addPerson(searchArr[i]);
+        }
+      }
     } else {
       loadFriends(offset + 20);
     }

@@ -207,25 +207,6 @@ function getDecl(num, forms) {
   return `${num} ${forms.genitive}`;
 }
 
-function searchPerson(person, searchString) {
-  if (
-    person.first_name.toLowerCase().startsWith(searchString) ||
-    person.last_name.toLowerCase().startsWith(searchString) ||
-    `${person.first_name} ${person.last_name}`
-      .toLowerCase()
-      .startsWith(searchString) ||
-    person.first_name.toLowerCase().startsWith(translit(searchString)) ||
-    person.last_name.toLowerCase().startsWith(translit(searchString)) ||
-    `${person.first_name} ${person.last_name}`
-      .toLowerCase()
-      .startsWith(translit(searchString))
-  ) {
-    return true;
-  }
-
-  return false;
-}
-
 function intersection() {
   const result = [];
   let lists;
@@ -266,6 +247,5 @@ export {
   getQueryVariable,
   getPersonElement,
   getDecl,
-  searchPerson,
   intersection
 };
