@@ -2,8 +2,6 @@ import { request, debounce, translit, intersection } from "./helpers";
 
 const index = {};
 
-function initIndex() {}
-
 function indexFriends(list) {
   list.forEach(person => {
     createIndex(person.first_name, person);
@@ -77,8 +75,6 @@ function search(str) {
 
     results[i] = curNode ? getChildren(curNode) : [];
   });
-
-  console.log(results);
 
   if (results.length > 1) {
     const arrays = results.map(arr =>

@@ -35,10 +35,6 @@ function request(url, cb) {
     xhr.onreadystatechange = function() {
       if (xhr.readyState != 4) return;
 
-      document
-        .getElementsByClassName("indicator--loading")[0]
-        .setAttribute("style", "display: none");
-
       resolve(xhr);
     };
   });
