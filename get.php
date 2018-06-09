@@ -58,13 +58,14 @@ function get($api, $offset)
 
 function search($api, $offset, $q)
 {
-    $response = $api->request("friends.search", array(
+    $response = $api->request("users.search", array(
         'access_token' => $api->access_token,
         'v' => '5.78',
         'offset' => $offset,
         'count' => 20,
         'fields' => 'contacts,photo_100,education,online,online_mobile',
         'q' => $q,
+        'from_list' => 'friends',
     ));
 
     if (isset($response->error)) {
@@ -126,7 +127,10 @@ function concatFriends($friends, $mutual)
 
         if (isset($friends[$i]->university_name)) {
             $person['university_name'] = $friends[$i]->university_name;
+        }
 
+        if (isset($friends[$i]->online_mobile)) {
+            $person['online_mobile'] = $friends[$i]->online_mobile;
         }
 
         array_push($result, $person);

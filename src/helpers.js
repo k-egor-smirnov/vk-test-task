@@ -176,8 +176,11 @@ function getPersonElement(person) {
 
   avatarEl.appendChild(imgEl);
 
-  person.online === 1 && avatarEl.classList.add("online");
-  person.online === 2 && avatarEl.classList.add("online--mobile");
+  if (person.online_mobile) {
+    avatarEl.classList.add("online--mobile");
+  } else if (person.online) {
+    avatarEl.classList.add("online");
+  }
 
   el.appendChild(avatarEl);
 

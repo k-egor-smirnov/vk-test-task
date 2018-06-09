@@ -96,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
   friendsEl = document.getElementsByClassName("friends")[0];
 
   searchEl.addEventListener("input", function(e) {
+    window.scrollTo(0, 0);
     offset = 0;
     searchString = e.srcElement.value.toLowerCase().trim();
 

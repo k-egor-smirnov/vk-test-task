@@ -9,11 +9,15 @@ body {
 }
 
 .header {
+  position: fixed;
+  top: 0;
+  z-index: 100;
   width: 100%;
   background: #5382b6;
 }
 
 .content {
+  margin-top: 16px;
   width: 100%;
 }
 
@@ -99,8 +103,8 @@ body {
   position: absolute;
   width: 14px;
   height: 16px;
-  bottom: 16px;
-  right: 8px;
+  bottom: 6px;
+  right: -4px;
   content: "";
   border-radius: 2px;
   background: white url("/assets/mobile.svg") no-repeat;
@@ -147,6 +151,10 @@ body {
     margin: 0 auto;
   }
 
+  .content {
+    padding-top: 48px;
+  }
+
   .search {
     width: 480px;
     margin: 0 auto;
@@ -184,9 +192,9 @@ body {
   .avatar.online--mobile::after {
     width: 14px;
     height: 16px;
-    bottom: 16px;
-    right: 8px;
-    background-size: 12px 12px;
+    bottom: 8px;
+    right: 0px;
+    background-size: 14px 14px;
     background-position: 0.5px;
   }
 }
