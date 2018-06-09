@@ -29,8 +29,9 @@ function createIndex(str, obj) {
     if (i === str.length) {
       if (!curNode.items) {
         curNode.items = [];
-        curNode.items.push(obj);
       }
+
+      curNode.items.push(obj);
     } else {
       curNode = curNode[str[i]];
     }
@@ -62,14 +63,22 @@ function search(str) {
   str = translit(str).toLowerCase();
 
   str.split(" ").forEach((name, i) => {
-    let curNode;
+    let curNode = index[name[0]];
 
-    for (let i = 0; i < name.length; i++) {
-      curNode = curNode ? curNode[name[i]] : index[name[0]];
+    for (let j = 1; j < name.length; j++) {
+      if (!curNode) {
+        results[i] = [];
+
+        return;
+      }
+
+      curNode = curNode[name[j]];
     }
 
     results[i] = curNode ? getChildren(curNode) : [];
   });
+
+  console.log(results);
 
   if (results.length > 1) {
     const arrays = results.map(arr =>
