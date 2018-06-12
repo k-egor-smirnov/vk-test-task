@@ -18,7 +18,7 @@ import {
 } from "./search";
 
 const search = debounce(serverSearch, 650);
-const loadSearchResults = debounce(serverSearch, 800);
+const loadSearchResults = debounce(serverSearch, 1200);
 
 let rendered = [];
 let offset = 0;
@@ -106,12 +106,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (searchString) {
       const data = localSearch(searchString, 0).slice(0, 20);
+
       clearFriends(data);
 
       const throttled = await search(searchString, rendered.length, res => {
         const parsedResponse = JSON.parse(res.response);
 
         total = parsedResponse.count;
+
+        if (!parsedResponse.count || total <= 0) {
+          toggleLoad(false);
+
+          return document
+            .getElementsByClassName("error--notfound")[0]
+            .setAttribute("style", "display: block");
+        }
 
         toggleLoad(false);
         if (!res) return;
