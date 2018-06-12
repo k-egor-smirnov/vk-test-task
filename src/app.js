@@ -64,7 +64,6 @@ async function loadFriends(newOffset) {
       addPerson(person);
     }
 
-    // console.log(newOffset, arr[0]);
     toggleLoad(false);
     offset = newOffset;
   }

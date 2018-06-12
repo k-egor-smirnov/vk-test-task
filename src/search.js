@@ -70,8 +70,6 @@ function localSearch(originalStr) {
   const str = translit(originalStr).toLowerCase();
   const str2 = changeKeyboardLayout(originalStr);
 
-  console.log(str, str2);
-
   str.split(" ").forEach((name, i) => {
     let curNode = index[name[0]];
 
