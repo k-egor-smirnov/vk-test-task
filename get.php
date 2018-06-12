@@ -27,7 +27,7 @@ echo $json;
 
 function get($api, $offset)
 {
-    $response = $api->request("friends.get", array(
+    $response = $api->request("friends.search", array(
         'access_token' => $api->access_token,
         'v' => '5.78',
         'offset' => $offset,
