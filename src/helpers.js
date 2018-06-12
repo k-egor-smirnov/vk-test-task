@@ -112,7 +112,6 @@ function changeKeyboardLayout(str, toEng = true) {
     replacer = swap(replacer);
 
     return str.replace(/[A-z/,.;\'\]\[]/g, function(x) {
-      console.log(replacer);
       return x == x.toLowerCase()
         ? replacer[x]
         : replacer[x.toLowerCase()].toUpperCase();
