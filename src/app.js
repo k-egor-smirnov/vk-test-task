@@ -125,17 +125,16 @@ document.addEventListener("DOMContentLoaded", () => {
           translit(getQueryVariable(res.responseURL, "q")) ===
           localSearchResults.q
         ) {
+          toggleLoad(false);
+
           if (parsedResponse.items && parsedResponse.items.length > 0) {
-            for (const person of parsedResponse.items) {
-              addPerson(person);
-            }
+            data.push(...parsedResponse.items);
+            clearFriends(data);
           }
 
           if (rendered.length === total) noMore = true;
 
           if (rendered.length === 0 && (!parsedResponse.count || total <= 0)) {
-            toggleLoad(false);
-
             return document
               .getElementsByClassName("error--notfound")[0]
               .setAttribute("style", "display: block");
