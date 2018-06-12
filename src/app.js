@@ -44,7 +44,12 @@ async function loadFriends(newOffset) {
     const data = await request("get.php?offset=" + newOffset);
     const response = JSON.parse(data.response);
 
-    if (response.items.length <= 0) noMore = true;
+    if (!response.items || response.items.length <= 0) {
+      toggleLoad(false);
+      noMore = true;
+
+      return;
+    }
 
     friends.push(...response.items);
     toggleLoad(false);
