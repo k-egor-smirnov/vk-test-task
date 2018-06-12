@@ -118,14 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         total = parsedResponse.count;
 
-        if (rendered.length === 0 && (!parsedResponse.count || total <= 0)) {
-          toggleLoad(false);
-
-          return document
-            .getElementsByClassName("error--notfound")[0]
-            .setAttribute("style", "display: block");
-        }
-
         toggleLoad(false);
         if (!res) return;
 
@@ -140,6 +132,14 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           if (rendered.length === total) noMore = true;
+
+          if (rendered.length === 0 && (!parsedResponse.count || total <= 0)) {
+            toggleLoad(false);
+
+            return document
+              .getElementsByClassName("error--notfound")[0]
+              .setAttribute("style", "display: block");
+          }
         }
       });
 
