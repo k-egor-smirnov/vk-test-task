@@ -1,6 +1,7 @@
 import {
   createElement,
   getCookie,
+  throttle,
   debounce,
   request,
   translit,
@@ -9,7 +10,15 @@ import {
   getDecl
 } from "./helpers";
 
-import { search, indexFriends } from "./search";
+import {
+  localSearch,
+  serverSearch,
+  indexFriends,
+  localSearchResults
+} from "./search";
+
+const search = debounce(serverSearch, 650);
+const loadSearchResults = debounce(serverSearch, 800);
 
 let rendered = [];
 let offset = 0;
@@ -17,11 +26,8 @@ let searchString = "";
 let noMore = false;
 let fetching = false;
 let friends = JSON.parse(sessionStorage.getItem("allFriends")) || [];
-let searchResults = [];
 let friendsEl;
-// search = debounce(search, 1000 / 3); // 3 api request per second for user
-// handleScroll = debounce(handleScroll, 1000 / 3);
-// const friends = [];
+let total;
 
 async function loadFriends(newOffset) {
   if (newOffset === 0) {
@@ -38,13 +44,13 @@ async function loadFriends(newOffset) {
     const data = await request("get.php?offset=" + newOffset);
     const response = JSON.parse(data.response);
 
-    if (response.length <= 0) noMore = true;
+    if (response.items.length <= 0) noMore = true;
 
-    friends.push(...response);
+    friends.push(...response.items);
     toggleLoad(false);
 
-    for (let i = 0; i < friends.length; i++) {
-      addPerson(friends[i]);
+    for (const person of friends) {
+      addPerson(person);
     }
 
     sessionStorage.setItem("allFriends", JSON.stringify(friends));
@@ -54,10 +60,8 @@ async function loadFriends(newOffset) {
   } else {
     const arr = friends.slice(newOffset, newOffset + 20);
 
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i]) {
-        addPerson(arr[i]);
-      }
+    for (const person of arr) {
+      addPerson(person);
     }
 
     // console.log(newOffset, arr[0]);
@@ -95,17 +99,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchEl = document.getElementsByClassName("search__input")[0];
   friendsEl = document.getElementsByClassName("friends")[0];
 
-  searchEl.addEventListener("input", function(e) {
+  searchEl.addEventListener("input", async function(e) {
     window.scrollTo(0, 0);
     offset = 0;
     searchString = e.srcElement.value.toLowerCase().trim();
 
     if (searchString) {
-      toggleLoad(true);
-      searchResults = search(searchString);
-      toggleLoad(false);
+      const data = localSearch(searchString, 0).slice(0, 20);
+      clearFriends(data);
 
-      clearFriends(searchResults.slice(0, 20));
+      const throttled = await search(searchString, rendered.length, res => {
+        const parsedResponse = JSON.parse(res.response);
+
+        total = parsedResponse.count;
+
+        toggleLoad(false);
+        if (!res) return;
+
+        if (
+          translit(getQueryVariable(res.responseURL, "q")) ===
+          localSearchResults.q
+        ) {
+          if (parsedResponse.items && parsedResponse.items.length > 0) {
+            for (const person of parsedResponse.items) {
+              addPerson(person);
+            }
+          }
+
+          if (rendered.length === total) noMore = true;
+        }
+      });
+
+      if (throttled) return toggleLoad(false);
     } else {
       loadFriends(offset);
     }
@@ -130,7 +155,6 @@ function clearFriends(ignore = []) {
     friendsEl.innerHTML = "";
   } else {
     const newFriendsEl = createElement("div", "friends");
-
     ignore.forEach(person => {
       addPerson(person, newFriendsEl);
     });
@@ -160,18 +184,30 @@ async function handleScroll() {
   if (noMore || fetching) return;
 
   if (
-    scroll + 400 + document.documentElement.clientHeight >= // 400 – offset for user-friendly load
+    scroll + 600 + document.documentElement.clientHeight >= // 600 – offset for user-friendly load
     document.body.offsetHeight
   ) {
     if (searchString) {
       toggleLoad(true);
-      let searchArr = searchResults.slice(offset + 20, offset + 40);
 
-      for (let i = 0; i < searchArr.length; i++) {
-        if (searchArr[i]) {
-          addPerson(searchArr[i]);
+      loadSearchResults(searchString, rendered.length, res => {
+        toggleLoad(false);
+
+        if (!res) return;
+
+        const people = JSON.parse(res.response).items;
+
+        if (people > 0) {
+          for (const person of people) {
+            addPerson(person);
+          }
         }
-      }
+
+        if (rendered.length === total) noMore = true;
+        console.log(rendered.length, total);
+
+        offset += res.response.length;
+      });
     } else {
       loadFriends(offset + 20);
     }

@@ -31,8 +31,8 @@ function get($api, $offset)
         'access_token' => $api->access_token,
         'v' => '5.78',
         'offset' => $offset,
-        'order' => 'hints',
         'count' => 20,
+        'order' => 'hints',
         'fields' => 'contacts,photo_100,education,online,online_mobile',
     ));
 
@@ -45,25 +45,27 @@ function get($api, $offset)
     }
 
     $friends = $response->response->items;
+    $total = $response->response->count;
 
     if (count($friends) <= 0) {
         die('[]');
     }
 
     $mutual = getMutual($api, $offset, $friends);
-    $result = concatFriends($friends, $mutual);
+    $result = concatFriends($friends, $mutual, $total);
 
     return $result;
 }
 
 function search($api, $offset, $q)
 {
-    $response = $api->request("users.search", array(
+    $response = $api->request("friends.search", array(
         'access_token' => $api->access_token,
         'v' => '5.78',
         'offset' => $offset,
         'count' => 20,
         'fields' => 'contacts,photo_100,education,online,online_mobile',
+        'order' => 'hints',
         'q' => $q,
         'from_list' => 'friends',
     ));
@@ -77,13 +79,14 @@ function search($api, $offset, $q)
     }
 
     $friends = $response->response->items;
+    $total = $response->response->count;
 
     if (count($friends) <= 0) {
         die('[]');
     }
 
     $mutual = getMutual($api, $offset, $friends);
-    $result = concatFriends($friends, $mutual);
+    $result = concatFriends($friends, $mutual, $total);
 
     return $result;
 
@@ -92,19 +95,29 @@ function search($api, $offset, $q)
 function getMutual($api, $offset, $friends)
 {
     $ids = '';
+    $mutual = array();
+
     foreach ($friends as $person) {
         if (!isset($person->deactivated)) {
             $ids = $ids . $person->id . ',';
+        } else {
+            array_push($mutual, (object) array("common_count" => 0, "id" => $person->id));
         }
+    }
+
+    if (strlen($ids) <= 0) {
+        return $mutual;
     }
 
     $response = $api->request('friends.getMutual', array(
         'access_token' => $api->access_token,
         'v' => '5.78',
         'target_uids' => $ids,
+        'count' => 0,
+        'offset' => 1,
     ));
 
-    $mutual = $response->response;
+    $mutual = array_merge($response->response, $mutual);
 
     return $mutual;
 }
@@ -112,7 +125,7 @@ function getMutual($api, $offset, $friends)
 /**
  * Объединяет массив друзей со списком общих друзей каждого
  */
-function concatFriends($friends, $mutual)
+function concatFriends($friends, $mutual, $total)
 {
     $result = array();
     for ($i = 0; $i < count($mutual); $i++) {
@@ -136,6 +149,6 @@ function concatFriends($friends, $mutual)
         array_push($result, $person);
     }
 
-    return $result;
+    return array('count' => $total, 'items' => $result);
 
 }

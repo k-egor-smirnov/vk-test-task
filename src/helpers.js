@@ -40,24 +40,82 @@ function request(url, cb) {
   });
 }
 
-function debounce(f, ms) {
-  let timer = null;
-
-  return function(...args) {
-    const onComplete = () => {
-      f.apply(this, args);
-      timer = null;
-    };
-
-    if (timer) {
-      clearTimeout(timer);
+const throttle = (func, limit) => {
+  let inThrottle;
+  return function() {
+    const args = arguments;
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
     }
+  };
+};
 
-    timer = setTimeout(onComplete, ms);
+function debounce(func, wait, immediate) {
+  var timeout;
+  return function() {
+    var context = this,
+      args = arguments;
+    var later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
   };
 }
 
+function changeKeyboardLayout(str) {
+  const replacer = {
+    q: "й",
+    w: "ц",
+    e: "у",
+    r: "к",
+    t: "е",
+    y: "н",
+    u: "г",
+    i: "ш",
+    o: "щ",
+    p: "з",
+    "[": "х",
+    "]": "ъ",
+    a: "ф",
+    s: "ы",
+    d: "в",
+    f: "а",
+    g: "п",
+    h: "р",
+    j: "о",
+    k: "л",
+    l: "д",
+    ";": "ж",
+    "'": "э",
+    z: "я",
+    x: "ч",
+    c: "с",
+    v: "м",
+    b: "и",
+    n: "т",
+    m: "ь",
+    ",": "б",
+    ".": "ю",
+    "/": "."
+  };
+
+  return str.replace(/[A-z/,.;\'\]\[]/g, function(x) {
+    return x == x.toLowerCase()
+      ? replacer[x]
+      : replacer[x.toLowerCase()].toUpperCase();
+  });
+}
+
 function translit(str) {
+  str = changeKeyboardLayout(str);
+
   const cyrilic = {
     А: "A",
     а: "a",
@@ -155,8 +213,13 @@ function getPersonElement(person) {
 
   const informationEl = createElement("div", "person__information");
 
-  const nameEl = createElement("span", "person__name", {
+  const nameEl = createElement("span", "", {
     innerText: person.first_name + " " + person.last_name
+  });
+
+  const linkEl = createElement("a", "person__name", {
+    innerHTML: `<span>${person.first_name} ${person.last_name}</span>`,
+    href: "http://vk.com/id" + person.id
   });
 
   const additionalEl = createElement("span", "person__additional", {
@@ -184,7 +247,7 @@ function getPersonElement(person) {
 
   el.appendChild(avatarEl);
 
-  informationEl.appendChild(nameEl);
+  informationEl.appendChild(linkEl);
   informationEl.appendChild(additionalEl);
 
   el.appendChild(informationEl);
@@ -244,6 +307,7 @@ function intersection() {
 export {
   createElement,
   getCookie,
+  throttle,
   debounce,
   request,
   translit,
