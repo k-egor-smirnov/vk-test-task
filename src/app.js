@@ -76,7 +76,7 @@ function addPerson(person, el) {
   } else {
     rendered.push(person.id);
 
-    const personEl = getPersonElement(person);
+    const personEl = getPersonElement(person, searchString);
 
     if (el) {
       el.appendChild(personEl);
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         total = parsedResponse.count;
 
-        if (!parsedResponse.count || total <= 0) {
+        if (rendered.length === 0 && (!parsedResponse.count || total <= 0)) {
           toggleLoad(false);
 
           return document

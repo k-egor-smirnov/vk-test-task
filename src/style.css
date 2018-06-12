@@ -8,6 +8,10 @@ body {
   margin: 0;
 }
 
+.hightlight {
+  background: rgb(231, 237, 242);
+}
+
 .header {
   position: fixed;
   top: 0;

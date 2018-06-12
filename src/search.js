@@ -64,10 +64,13 @@ function getChildren(index) {
   return children;
 }
 
-function localSearch(str) {
+function localSearch(originalStr) {
   let results = [];
-  str = translit(str).toLowerCase();
-  const str2 = translit(changeKeyboardLayout(str));
+
+  const str = translit(originalStr).toLowerCase();
+  const str2 = changeKeyboardLayout(originalStr);
+
+  console.log(str, str2);
 
   str.split(" ").forEach((name, i) => {
     let curNode = index[name[0]];

@@ -69,48 +69,68 @@ function debounce(func, wait, immediate) {
   };
 }
 
-function changeKeyboardLayout(str) {
-  const replacer = {
-    q: "й",
-    w: "ц",
-    e: "у",
-    r: "к",
-    t: "е",
-    y: "н",
-    u: "г",
-    i: "ш",
-    o: "щ",
-    p: "з",
-    "[": "х",
-    "]": "ъ",
-    a: "ф",
-    s: "ы",
-    d: "в",
-    f: "а",
-    g: "п",
-    h: "р",
-    j: "о",
-    k: "л",
-    l: "д",
-    ";": "ж",
-    "'": "э",
-    z: "я",
-    x: "ч",
-    c: "с",
-    v: "м",
-    b: "и",
-    n: "т",
-    m: "ь",
-    ",": "б",
-    ".": "ю",
-    "/": "."
+function changeKeyboardLayout(str, toEng = true) {
+  let replacer = {
+    й: "q",
+    ц: "w",
+    у: "e",
+    к: "r",
+    е: "t",
+    н: "y",
+    г: "u",
+    ш: "i",
+    щ: "o",
+    з: "p",
+    х: "[",
+    ъ: "]",
+    ф: "a",
+    ы: "s",
+    в: "d",
+    а: "f",
+    п: "f",
+    р: "g",
+    р: "h",
+    о: "j",
+    л: "k",
+    д: "l",
+    ж: ";",
+    э: "'",
+    ё: "\\",
+    "]": "`",
+    я: "z",
+    ч: "x",
+    с: "c",
+    м: "v",
+    и: "b",
+    т: "n",
+    ь: "m",
+    б: ",",
+    ю: ".",
+    "/": "/"
   };
 
-  return str.replace(/[A-z/,.;\'\]\[]/g, function(x) {
-    return x == x.toLowerCase()
-      ? replacer[x]
-      : replacer[x.toLowerCase()].toUpperCase();
-  });
+  if (!toEng) {
+    replacer = swap(replacer);
+
+    return str.replace(/[A-z/,.;\'\]\[]/g, function(x) {
+      return x == x.toLowerCase()
+        ? replacer[x]
+        : replacer[x.toLowerCase()].toUpperCase();
+    });
+  } else {
+    return str.replace(/[А-я/,.;\'\]\[]/g, function(x) {
+      return x == x.toLowerCase()
+        ? replacer[x]
+        : replacer[x.toLowerCase()].toUpperCase();
+    });
+  }
+}
+
+function swap(data) {
+  return Object.keys(data).reduce(function(obj, key) {
+    obj[data[key]] = key;
+    return obj;
+  }, {});
 }
 
 function translit(str) {
@@ -200,7 +220,7 @@ function getQueryVariable(url, variable) {
     }
   }
 }
-function getPersonElement(person) {
+function getPersonElement(person, hightlight) {
   const el = createElement("div", "person");
 
   const avatarEl = createElement("div", "avatar");
@@ -211,12 +231,11 @@ function getPersonElement(person) {
 
   const informationEl = createElement("div", "person__information");
 
-  const nameEl = createElement("span", "", {
-    innerText: person.first_name + " " + person.last_name
-  });
-
   const linkEl = createElement("a", "person__name", {
-    innerHTML: `<span>${person.first_name} ${person.last_name}</span>`,
+    innerHTML: `<span>${wrapSubstring(
+      person.first_name + " " + person.last_name,
+      hightlight
+    )}</span>`,
     href: "http://vk.com/id" + person.id
   });
 
@@ -300,6 +319,11 @@ function intersection() {
   return result.map(id => {
     return lists[0][id];
   });
+}
+
+function wrapSubstring(str, q) {
+  if (!q || q.length === 0) return str;
+  return str.replace(new RegExp(q, "gi"), "<span class='hightlight'>$&</span>");
 }
 
 export {
