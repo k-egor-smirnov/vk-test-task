@@ -1,6 +1,7 @@
 import {
   request,
   debounce,
+  changeKeyboardLayout,
   translit,
   intersection,
   toggleLoad
@@ -66,21 +67,38 @@ function getChildren(index) {
 function localSearch(str) {
   let results = [];
   str = translit(str).toLowerCase();
+  const str2 = translit(changeKeyboardLayout(str));
 
   str.split(" ").forEach((name, i) => {
     let curNode = index[name[0]];
 
     for (let j = 1; j < name.length; j++) {
       if (!curNode) {
-        results[i] = [];
-
-        return;
+        !results[i] && (results[i] = []);
+      } else {
+        curNode = curNode[name[j]];
       }
-
-      curNode = curNode[name[j]];
     }
 
-    results[i] = curNode ? getChildren(curNode) : [];
+    if (!results[i]) results[i] = [];
+
+    results[i].push(...(curNode ? getChildren(curNode) : []));
+  });
+
+  str2.split(" ").forEach((name, i) => {
+    let curNode = index[name[0]];
+
+    for (let j = 1; j < name.length; j++) {
+      if (!curNode) {
+        !results[i] && (results[i] = []);
+      } else {
+        curNode = curNode[name[j]];
+      }
+    }
+
+    if (!results[i]) results[i] = [];
+
+    results[i].push(...(curNode ? getChildren(curNode) : []));
   });
 
   if (results.length > 1) {
@@ -121,25 +139,5 @@ async function serverSearch(q, offset, cb) {
 
   return response;
 }
-
-// async function search(q, offset, useServer = true) {
-//   let results = localSearchResults.items.slice(offset, offset + 20);
-
-//   if (q === localSearchResults.q) {
-//     if (results.length < 20) {
-//       const data = await serverSearch(q, results.length + offset);
-//       results.push(...JSON.parse(data.response));
-//     }
-//   } else {
-//     localSearchResults.items = localSearch(q);
-//     localSearchResults.q = q;
-
-//     results.push(...localSearchResults.items.slice(offset, offset + 20));
-//   }
-
-//   if (q === localSearchResults.q || !localSearchResults.q) {
-//     return results;
-//   }
-// }
 
 export { indexFriends, localSearch, serverSearch, search, localSearchResults };

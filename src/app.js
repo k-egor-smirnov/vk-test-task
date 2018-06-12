@@ -132,6 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (throttled) return toggleLoad(false);
     } else {
+      offset = 0;
+
       loadFriends(offset);
     }
   });
@@ -192,19 +194,20 @@ async function handleScroll() {
 
       loadSearchResults(searchString, rendered.length, res => {
         toggleLoad(false);
-
         if (!res) return;
+        const parsedResponse = JSON.parse(res.response);
 
-        const people = JSON.parse(res.response).items;
+        const people = parsedResponse.items;
 
-        if (people > 0) {
+        if (!people) return;
+
+        if (people.length > 0) {
           for (const person of people) {
             addPerson(person);
           }
         }
 
         if (rendered.length === total) noMore = true;
-        console.log(rendered.length, total);
 
         offset += res.response.length;
       });

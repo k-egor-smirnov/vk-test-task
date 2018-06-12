@@ -114,8 +114,6 @@ function changeKeyboardLayout(str) {
 }
 
 function translit(str) {
-  str = changeKeyboardLayout(str);
-
   const cyrilic = {
     А: "A",
     а: "a",
@@ -310,6 +308,7 @@ export {
   throttle,
   debounce,
   request,
+  changeKeyboardLayout,
   translit,
   getQueryVariable,
   getPersonElement,
