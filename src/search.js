@@ -69,38 +69,29 @@ function localSearch(originalStr) {
 
   const str = translit(originalStr).toLowerCase();
   const str2 = changeKeyboardLayout(originalStr);
+  const str3 = translit(changeKeyboardLayout(originalStr, false));
 
-  str.split(" ").forEach((name, i) => {
-    let curNode = index[name[0]];
+  find(str);
+  find(str2);
+  find(str3);
 
-    for (let j = 1; j < name.length; j++) {
-      if (!curNode) {
-        !results[i] && (results[i] = []);
-      } else {
-        curNode = curNode[name[j]];
+  function find(str) {
+    str.split(" ").forEach((name, i) => {
+      let curNode = index[name[0]];
+
+      for (let j = 1; j < name.length; j++) {
+        if (!curNode) {
+          !results[i] && (results[i] = []);
+        } else {
+          curNode = curNode[name[j]];
+        }
       }
-    }
 
-    if (!results[i]) results[i] = [];
+      if (!results[i]) results[i] = [];
 
-    results[i].push(...(curNode ? getChildren(curNode) : []));
-  });
-
-  str2.split(" ").forEach((name, i) => {
-    let curNode = index[name[0]];
-
-    for (let j = 1; j < name.length; j++) {
-      if (!curNode) {
-        !results[i] && (results[i] = []);
-      } else {
-        curNode = curNode[name[j]];
-      }
-    }
-
-    if (!results[i]) results[i] = [];
-
-    results[i].push(...(curNode ? getChildren(curNode) : []));
-  });
+      results[i].push(...(curNode ? getChildren(curNode) : []));
+    });
+  }
 
   if (results.length > 1) {
     const arrays = results.map(arr =>
